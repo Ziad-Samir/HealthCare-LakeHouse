@@ -19,6 +19,7 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
 spark.sql(f"CREATE VOLUME IF NOT EXISTS {CATALOG}.{SCHEMA}.{VOLUME}")
 
 LANDING = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}/fhir"
+# dbutils.fs.mkdirs(LANDING)
 TARGET = f"{CATALOG}.{SCHEMA}.fhir_bundles_raw"
 print("Upload JSON files to:", LANDING)
 
@@ -32,7 +33,7 @@ print("Upload JSON files to:", LANDING)
 from pyspark.sql import functions as F
 
 raw = (
-    spark.read.option("wholetext", True).text(f"{LANDING}/*.json")
+    spark.read.text(f"{LANDING}/*.json", wholetext=True)
     .select(
         F.col("value").alias("raw_json"),
         F.col("_metadata.file_path").alias("source_file"),
@@ -65,3 +66,6 @@ display(spark.sql(f"""
     GROUP BY 1
     ORDER BY n DESC
 """))
+
+# COMMAND ----------
+
