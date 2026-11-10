@@ -59,12 +59,27 @@ display(spark.sql(f"""
 # COMMAND ----------
 
 # Which resource types are inside the bundles? (this is the silver-layer to-do list)
-display(spark.sql(f"""
-    SELECT get_json_object(e, '$.resource.resourceType') AS resource_type, COUNT(*) AS n
+spark.sql(f"""
+    CREATE OR REPLACE TABLE {CATALOG}.{SCHEMA}.fhir_resources AS
+    SELECT 
+    get_json_object(e, '$.resource.id') AS resource_id, 
+    get_json_object(e, '$.resource.resourceType') AS resource_type,
+    get_json_object(e, '$.fullUrl') AS fullUrl, 
+    get_json_object(e, '$.resource') AS resource_json,
+    source_file, 
+    ingested_at
     FROM {TARGET}
     LATERAL VIEW explode(from_json(get_json_object(raw_json, '$.entry'), 'array<string>')) t AS e
-    GROUP BY 1
-    ORDER BY n DESC
+""")
+
+# COMMAND ----------
+
+display(spark.sql(f"""
+    SELECT 
+    count(*),
+    COUNT(DISTINCT resource_type)
+    FROM {CATALOG}.{SCHEMA}.fhir_resources
+
 """))
 
 # COMMAND ----------
