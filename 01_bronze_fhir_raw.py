@@ -64,7 +64,7 @@ spark.sql(f"""
     SELECT 
     get_json_object(e, '$.resource.id') AS resource_id, 
     get_json_object(e, '$.resource.resourceType') AS resource_type,
-    get_json_object(e, '$.fullUrl') AS fullUrl, 
+    get_json_object(e, '$.fullUrl') AS full_Url, 
     get_json_object(e, '$.resource') AS resource_json,
     source_file, 
     ingested_at
